@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> 
+     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+      <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">-->
+      <?!= HtmlService.createHtmlOutputFromFile('css').getContent(); ?>
+</head>
+
+<body>
+
+    <div id="mainDiv" class="container">
+        <div id="company">
+              <h5>Выберите компанию:</h5>
+              <div class="input-group">
+                     <select class="form-control" v-model="companySearchInput" placeholder="Выберите компанию">
+                        <option v-for="element in elementsListCompany" :value="element['name']" v-html="element['name']"></option>
+                     </select>
+              </div>
+        </div>
+        
+        <hr>
+        
+        <div>
+            <h5>Данные о заказчике:</h5>
+            <div class="form-group">
+                <input type="text" class="form-control" v-model="clientName" placeholder="Введите имя заказчика">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" v-model="clientAddress" placeholder="Введите адрес объекта">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <h5>Выполняемые работы:</h5>
+            <textarea class="form-control" v-model="workDescribe" placeholder="Опишите работы"></textarea>
+        </div>
+
+        <hr>
+
+        <div id="workSearch">
+            <h5 id="workTitle">Добавить работы:</h5>
+                <div class="input-group">
+                    <input type="search" class="form-control" list="workList" v-model="workSearchInput" placeholder="Введите название" @change="showWorkNameData">
+                    <data-list name="workList" :list ="elementsListWork" show="name">
+                    </data-list>
+                     <div class="input-group-append">
+                          <button id="searchNameBtn" class="btn btn-outline-secondary" v-on:click="showWorkNameData">Найти</button>
+                    </div>
+                </div>
+         </div> 
+         <div id="infoWork" class="info" v-if="showWorkInfo">
+             <h6> Информация о работах: </h6>
+             <p>Наименование: <b>{{infoWork.name}}</b></p>
+             <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Стоимость</span>
+                </div>
+                <input type="number" class="form-control" v-model="infoWork.price">
+            </div>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Кол-во:</span>
+                </div>
+                <input type="number" class="form-control"  min="1" v-model="amountServiceWork">
+            </div>
+            <div class="input-group">
+                 <div class="input-group-prepend">
+                      <span class="input-group-text">Ед.изм:</span>
+                 </div>
+                 <select class="form-control" v-model="infoWork.measure">
+                       <option v-for="element in elementsListMeasure" :value="element['name']" v-html="element['name']"></option>
+                 </select>
+             </div>
+            <button class="btn btn-info" v-on:click = "addWorkToOrder">Добавить</button>
+         </div>
+
+         <div id="orderListWorkDiv" class="orderListDiv"> 
+            <h6>Добавленные в КП работы:</h6>
+            <ol id="orderListWork"></ol>
+            <div id="totalPriceWork">Итого стоимость работ: {{totalPriceWork}} руб.</div>
+         </div>
+
+         <hr>
+
+         <div id="materialSearch">
+                <h5 id="materialTitle">Добавить материалы:</h5>
+                    <div class="input-group">
+                        <input type="search" class="form-control" list="materialList" v-model="materialSearchInput" placeholder="Введите название" @change="showMaterialNameData">
+                        <data-list name="materialList" :list ="elementsListMaterial" show="name">
+                        </data-list>
+                        <div class="input-group-append">
+                              <button id="searchNameBtn" class="btn btn-outline-secondary" v-on:click="showMaterialNameData">Найти</button>
+                        </div>
+                </div>
+             </div> 
+             <div class="info" v-if="showMaterialInfo">
+                 <h6> Информация о материале: </h6>
+                 <p>Наименование: <b>{{infoMaterial.name}}</b></p>
+                 <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Стоимость</span>
+                    </div>
+                    <input type="number" class="form-control" v-model="infoMaterial.price">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Кол-во:</span>
+                    </div>
+                    <input type="number" class="form-control"  min="1" v-model="amountServiceMaterial">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Ед.изм:</span>
+                    </div>
+                    <select class="form-control" v-model="infoMaterial.measure">
+                       <option v-for="element in elementsListMeasure" :value="element['name']" v-html="element['name']"></option>
+                    </select>
+                </div>
+                <button class="btn btn-info" v-on:click = "addMaterialToOrder">Добавить</button>
+             </div>
+    
+             <div id="orderListMaterialDiv" class="orderListDiv"> 
+                <h6>Добавленные в КП материалы:</h6>
+                <ol id="orderListMaterial"></ol>
+                <div id="totalPriceMaterial">Итого стоимость материалов: {{totalPriceMaterial}} руб.</div>
+             </div>
+             <hr>
+         <div class="form-group">
+            <form id ='photoForm'>
+                    <label class="btn btn-secondary" for="photoInput">Выбрать фото</label>
+                    <input type="file" id ="photoInput" class="form-control-file" name ='photo'  
+                    accept="image/x-png,image/gif,image/jpeg"  @change="onFileChange" multiple>  
+            </form>
+        </div>
+         <div id = "imgDisplay" class="form-group">
+            <div id='imgDiv'></div>
+            <input v-if="showUpPhotoBtn" type="button" class="btn btn-info" value='Загрузить' @click="uploadImages">
+            <div v-html="uploadStatus"></div> 
+        </div>
+        <hr>        
+        <div id="final" class="form-group">
+            <input v-if="showGenDocBtn" type="button" class="btn btn-success" value='Создать КП' @click="createDocument">
+            <div v-html="generateStatus"></div>
+            <a v-if="showGenLink" :href="generateLink" class="btn btn-primary">Скачать PDF</a>
+        </div>
+  </div>
+  
+</body>
+
+<?!= HtmlService.createHtmlOutputFromFile('js').getContent(); ?>
+
+</html>
